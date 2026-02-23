@@ -36,6 +36,8 @@ def build():
         "--file-description=LAN File Sharing",
         "--assume-yes-for-downloads",
         "--windows-icon-from-ico=icon.ico",
+	"--macos-app-icon=lanlan.png",
+	"--macos-create-app-bundle",
         "main.py",
     ]
     # filter out empty strings
