@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
@@ -17,10 +21,14 @@ class FileItemWidget(QFrame):
         super().__init__(parent)
         self._file = shared_file
         self.setFrameShape(QFrame.NoFrame)
-        self.setStyleSheet("padding: 4px 0;")
 
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(8, 4, 8, 4)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(0)
+
+        content = QWidget()
+        layout = QHBoxLayout(content)
+        layout.setContentsMargins(8, 8, 8, 8)
 
         info_layout = QVBoxLayout()
         name_label = QLabel(shared_file.filename)
@@ -29,7 +37,7 @@ class FileItemWidget(QFrame):
 
         meta = shared_file.size_display
         if not is_mine:
-            meta += f"  ·  {shared_file.owner_hostname}"
+            meta += f"  \u00b7  {shared_file.owner_hostname}"
         meta_label = QLabel(meta)
         meta_label.setStyleSheet("font-size: 11px; color: #a6adc8;")
         info_layout.addWidget(meta_label)
@@ -37,20 +45,40 @@ class FileItemWidget(QFrame):
         layout.addLayout(info_layout, 1)
 
         if is_mine:
-            btn = QPushButton("✕")
+            btn = QPushButton("Dequeue")
             btn.setObjectName("removeBtn")
             btn.setToolTip("Remove from share list")
             btn.clicked.connect(lambda: self.remove_clicked.emit(shared_file.file_id))
             layout.addWidget(btn)
         else:
-            btn = QPushButton("Download")
-            btn.setObjectName("downloadBtn")
-            btn.clicked.connect(
+            self._download_btn = QPushButton("Download")
+            self._download_btn.setObjectName("downloadBtn")
+            self._download_btn.clicked.connect(
                 lambda: self.download_clicked.emit(
                     shared_file.file_id, shared_file.filename, shared_file.owner_ip
                 )
             )
-            layout.addWidget(btn)
+            layout.addWidget(self._download_btn)
+
+            self._open_folder_btn = QPushButton("Open folder")
+            self._open_folder_btn.setObjectName("openFolderBtn")
+            self._open_folder_btn.setVisible(False)
+            layout.addWidget(self._open_folder_btn)
+
+        outer.addWidget(content)
+
+        # separator line
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setStyleSheet("color: #313244;")
+        separator.setFixedHeight(1)
+        outer.addWidget(separator)
+
+    def show_open_folder(self, folder_path: str):
+        """Show the Open folder button after download completes."""
+        if hasattr(self, "_open_folder_btn"):
+            self._open_folder_btn.setVisible(True)
+            self._open_folder_btn.clicked.connect(lambda: _open_folder(folder_path))
 
 
 class FileListWidget(QWidget):
@@ -76,7 +104,7 @@ class FileListWidget(QWidget):
         self._my_container = QWidget()
         self._my_layout = QVBoxLayout(self._my_container)
         self._my_layout.setContentsMargins(0, 0, 0, 0)
-        self._my_layout.setSpacing(2)
+        self._my_layout.setSpacing(0)
         self._my_layout.addStretch()
         self._my_area.setWidget(self._my_container)
         layout.addWidget(self._my_area, 1)
@@ -91,7 +119,7 @@ class FileListWidget(QWidget):
         self._peer_container = QWidget()
         self._peer_layout = QVBoxLayout(self._peer_container)
         self._peer_layout.setContentsMargins(0, 0, 0, 0)
-        self._peer_layout.setSpacing(2)
+        self._peer_layout.setSpacing(0)
         self._peer_layout.addStretch()
         self._peer_area.setWidget(self._peer_container)
         layout.addWidget(self._peer_area, 1)
@@ -140,3 +168,19 @@ class FileListWidget(QWidget):
             widget = self._peer_items.pop(fid)
             self._peer_layout.removeWidget(widget)
             widget.deleteLater()
+
+    def mark_download_completed(self, file_id: str, saved_path: str):
+        """Show Open folder button on the peer file item after download."""
+        if file_id in self._peer_items:
+            folder = os.path.dirname(saved_path)
+            self._peer_items[file_id].show_open_folder(folder)
+
+
+def _open_folder(folder_path: str):
+    """Open a folder in the system file manager."""
+    if sys.platform == "win32":
+        os.startfile(folder_path)
+    elif sys.platform == "darwin":
+        subprocess.Popen(["open", folder_path])
+    else:
+        subprocess.Popen(["xdg-open", folder_path])

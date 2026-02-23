@@ -60,24 +60,28 @@ QPushButton:pressed {
 }
 QPushButton#removeBtn {
     background-color: #f38ba8;
-    padding: 4px 8px;
-    font-size: 11px;
-    min-width: 24px;
-    max-width: 24px;
-    min-height: 24px;
-    max-height: 24px;
-    border-radius: 12px;
+    padding: 6px 16px;
+    font-size: 12px;
+    border-radius: 6px;
 }
 QPushButton#removeBtn:hover {
     background-color: #eba0ac;
 }
 QPushButton#downloadBtn {
     background-color: #a6e3a1;
-    padding: 4px 12px;
+    padding: 6px 16px;
     font-size: 12px;
 }
 QPushButton#downloadBtn:hover {
     background-color: #94e2d5;
+}
+QPushButton#openFolderBtn {
+    background-color: #cba6f7;
+    padding: 6px 16px;
+    font-size: 12px;
+}
+QPushButton#openFolderBtn:hover {
+    background-color: #b4befe;
 }
 QLabel#sectionLabel {
     color: #a6adc8;
@@ -208,19 +212,24 @@ QPushButton:hover {
 QPushButton#removeBtn {
     background-color: #d20f39;
     color: #ffffff;
-    padding: 4px 8px;
-    font-size: 11px;
-    min-width: 24px;
-    max-width: 24px;
-    min-height: 24px;
-    max-height: 24px;
-    border-radius: 12px;
+    padding: 6px 16px;
+    font-size: 12px;
+    border-radius: 6px;
 }
 QPushButton#downloadBtn {
     background-color: #40a02b;
     color: #ffffff;
-    padding: 4px 12px;
+    padding: 6px 16px;
     font-size: 12px;
+}
+QPushButton#openFolderBtn {
+    background-color: #8839ef;
+    color: #ffffff;
+    padding: 6px 16px;
+    font-size: 12px;
+}
+QPushButton#openFolderBtn:hover {
+    background-color: #7287fd;
 }
 QLabel#sectionLabel {
     color: #6c6f85;

@@ -215,6 +215,7 @@ class MainWindow(QMainWindow):
 
     def _on_download_completed(self, file_id: str, saved_path: str):
         self._transfer_panel.mark_completed(file_id)
+        self._file_list.mark_download_completed(file_id, saved_path)
         self._downloads.pop(file_id, None)
 
     def _on_download_failed(self, file_id: str, error: str):
